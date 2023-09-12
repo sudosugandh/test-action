@@ -1,0 +1,57 @@
+name: Laravel Deployment
+
+on:
+  push:
+    branches:
+      - main # Adjust the branch as needed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Enable Maintenance Mode on Server 1
+        uses: appleboy/ssh-action@v2
+        with:
+          host: ${{ secrets.SERVER1_HOST }}
+          username: ${{ secrets.SERVER1_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_SERVER1 }}
+          port: 22
+          script: |
+            cd /var/www/html/
+            php artisan down
+        # Ensure no sensitive information is exposed in logs
+        env:
+          SSH_AUTH_SOCK: /dev/null
+
+      - name: Deploy Code on Server 2
+        uses: appleboy/ssh-action@v2
+        with:
+          host: ${{ secrets.SERVER2_HOST }}
+          username: ${{ secrets.SERVER2_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_SERVER2 }}
+          port: 22
+          script: |
+            cd  /var/www/html/
+            sh deploy.sh # Execute the deploy.sh script
+        # Ensure no sensitive information is exposed in logs
+        env:
+          SSH_AUTH_SOCK: /dev/null
+
+      - name: Disable Maintenance Mode on Server 1 and Run Deploy Script
+        uses: appleboy/ssh-action@v2
+        with:
+          host: ${{ secrets.SERVER1_HOST }}
+          username: ${{ secrets.SERVER1_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_SERVER1 }}
+          port: 22
+          script: |
+            cd /var/www/html/
+            php artisan up
+            sh deploy.sh # Execute the deploy.sh script
+        # Ensure no sensitive information is exposed in logs
+        env:
+          SSH_AUTH_SOCK: /dev/null
