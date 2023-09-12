@@ -13,6 +13,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Configure PHP 8.1
+        uses: shivammathur/setup-php@master
+        with:
+          php-version: 8.1
+          extensions: mbstring, ctype, fileinfo, openssl, pdo, bcmath, json, tokenizer, xml
+
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist
+
       - name: Enable Maintenance Mode on Server 1
         uses: appleboy/ssh-action@v2
         with:
@@ -21,7 +30,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY_SERVER1 }}
           port: 22
           script: |
-            cd /var/www/html/
+            cd /path/to/server1
             php artisan down
         # Ensure no sensitive information is exposed in logs
         env:
@@ -35,7 +44,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY_SERVER2 }}
           port: 22
           script: |
-            cd  /var/www/html/
+            cd /path/to/server2
             sh deploy.sh # Execute the deploy.sh script
         # Ensure no sensitive information is exposed in logs
         env:
@@ -49,9 +58,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY_SERVER1 }}
           port: 22
           script: |
-            cd /var/www/html/
+            cd /path/to/server1
             php artisan up
             sh deploy.sh # Execute the deploy.sh script
         # Ensure no sensitive information is exposed in logs
         env:
           SSH_AUTH_SOCK: /dev/null
+
