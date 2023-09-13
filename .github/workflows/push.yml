@@ -11,8 +11,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          path: /var/www/html/test-action # Specify the target directory for code checkout
+  
 
   configure_php:
     runs-on: ubuntu-latest
@@ -27,8 +26,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Composer Dependencies
-        run: composer install --no-dev --no-interaction --prefer-dist
-        working-directory: /var/www/html/test-action # Specify the working directory
+       # run: composer install --no-dev --no-interaction --prefer-dist
+       # working-directory: /var/www/html/test-action # Specify the working directory
 
   install_sshpass:
     runs-on: ubuntu-latest
