@@ -14,7 +14,7 @@ run_ssh_with_password() {
 run_ssh_with_password "${{ secrets.SERVER1_HOST }}" "${{ secrets.SERVER1_USERNAME }}" "${{ secrets.SERVER1_PASSWORD }}" 22 "cd /var/www/html/test-action && php artisan down"
 
 # Deploy Code on Server 2
-run_ssh_with_password "${{ secrets.SERVER2_HOST }}" "${{ secrets.SERVER2_USERNAME }}" "${{ secrets.SERVER2_PASSWORD }}" 22 "cd /var/www/html/test-action && bash server2.sh"
+run_ssh_with_password "${{ secrets.SERVER2_HOST }}" "${{ secrets.SERVER2_USERNAME }}" "${{ secrets.SERVER2_PASSWORD }}" 22 "cd /var/www/html/test-action && bash deploy.sh"
 
 # Disable Maintenance Mode on Server 1
 run_ssh_with_password "${{ secrets.SERVER1_HOST }}" "${{ secrets.SERVER1_USERNAME }}" "${{ secrets.SERVER1_PASSWORD }}" 22 "cd /var/www/html/test-action && php artisan up"
