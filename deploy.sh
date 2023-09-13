@@ -7,14 +7,14 @@ run_ssh_with_password() {
     local password="$3"
     local port="$4"
     local script="$5"
-    sshpass -p "$password" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "$port" "$username@$host" "$script"
+    sshpass -p "$password" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "$port" "$username@$host" "bash -c '$script'"
 }
 
 # Enable Maintenance Mode on Server 1
-run_ssh_with_password "$SERVER1_HOST" "$SERVER1_USERNAME" "$SERVER1_PASSWORD" 22 "cd /var/www/html/test-action && php artisan down"
+run_ssh_with_password "${{ secrets.SERVER1_HOST }}" "${{ secrets.SERVER1_USERNAME }}" "${{ secrets.SERVER1_PASSWORD }}" 22 "cd /var/www/html/test-action && php artisan down"
 
 # Deploy Code on Server 2
-run_ssh_with_password "$SERVER2_HOST" "$SERVER2_USERNAME" "$SERVER2_PASSWORD" 22 "cd /var/www/html/test-action && sh deploy.sh"
+run_ssh_with_password "${{ secrets.SERVER2_HOST }}" "${{ secrets.SERVER2_USERNAME }}" "${{ secrets.SERVER2_PASSWORD }}" 22 "cd /var/www/html/test-action && bash deploy.sh"
 
 # Disable Maintenance Mode on Server 1
-run_ssh_with_password "$SERVER1_HOST" "$SERVER1_USERNAME" "$SERVER1_PASSWORD" 22 "cd /var/www/html/test-action && php artisan up"
+run_ssh_with_password "${{ secrets.SERVER1_HOST }}" "${{ secrets.SERVER1_USERNAME }}" "${{ secrets.SERVER1_PASSWORD }}" 22 "cd /var/www/html/test-action && php artisan up"
