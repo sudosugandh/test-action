@@ -6,61 +6,48 @@ on:
       - main
 
 jobs:
-  deploy_server1:
+  ssh_setup:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: SSH Setup
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+      - name: Enable Maintenance Mode on Server 1
+        run: |
+          sshpass -p ${{ secrets.SERVER1_PASSWORD }} ssh ${{ secrets.SERVER1_USERNAME }}@${{ secrets.SERVER1_HOST }} -p 22 'cd /var/www/html/test-action && php artisan down'
 
-      - name: Configure PHP 8.1
+  php_setup:
+    runs-on: ubuntu-latest
+    needs: ssh_setup
+    steps:
+      - name: PHP Setup
         uses: shivammathur/setup-php@master
         with:
           php-version: 8.1
           extensions: mbstring, ctype, fileinfo, openssl, pdo, bcmath, json, tokenizer, xml
 
-      - name: Install Composer Dependencies
-        run: composer install --no-dev --no-interaction --prefer-dist
-
-      - name: Install sshpass
-        run: sudo apt-get install sshpass  # Install sshpass on the runner
-
-      - name: Enable Maintenance Mode on Server 1
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER1_HOST }}
-          username: ${{ secrets.SERVER1_USERNAME }}
-          password: ${{ secrets.SERVER1_PASSWORD }}
-          port: 22
-          script: |
-            cd /var/www/html/test-action
-            # Add debugging info
-            echo "Current PATH: $PATH"
-            php -v
-            php artisan down
-        env:
-          SSH_AUTH_SOCK: /dev/null
-
-  deploy_server2:
+  composer_install:
     runs-on: ubuntu-latest
+    needs: php_setup
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Composer Install
+        run: composer install --no-dev --no-interaction --prefer-dist
 
-      - name: Install sshpass
-        run: sudo apt-get install sshpass  # Install sshpass on the runner
-
+  deploy_server2:
+    runs-on: ubuntu-latest
+    needs: composer_install
+    steps:
       - name: Deploy Code on Server 2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER2_HOST }}
-          username: ${{ secrets.SERVER2_USERNAME }}
-          password: ${{ secrets.SERVER2_PASSWORD }}
-          port: 22
-          script: |
-            cd /var/www/html/test-action
-            # Add debugging info
-            echo "Current PATH: $PATH"
-            # php -v
-            # sh deploy.sh # Execute the deploy.sh script
-        env:
-          SSH_AUTH_SOCK: /dev/null
+        run: |
+          sshpass -p ${{ secrets.SERVER2_PASSWORD }} ssh ${{ secrets.SERVER2_USERNAME }}@${{ secrets.SERVER2_HOST }} -p 22 'cd /var/www/html/test-action && php -v && sh deploy.sh'
+
+  disable_maintenance_mode:
+    runs-on: ubuntu-latest
+    needs: deploy_server2
+    steps:
+      - name: Disable Maintenance Mode on Server 1 and Run Deploy Script
+        run: |
+          sshpass -p ${{ secrets.SERVER1_PASSWORD }} ssh ${{ secrets.SERVER1_USERNAME }}@${{ secrets.SERVER1_HOST }} -p 22 'cd /var/www/html/test-action && php -v && php artisan up && sh deploy.sh'
