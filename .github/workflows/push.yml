@@ -21,10 +21,10 @@ jobs:
           php-version: 8.1
           extensions: mbstring, ctype, fileinfo, openssl, pdo, bcmath, json, tokenizer, xml
 
-  install_composer_dependencies:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install Composer Dependencies
+  #install_composer_dependencies:
+    #runs-on: ubuntu-latest
+    #steps:
+   #   - name: Install Composer Dependencies
         #working-directory: /var/www/html/test-action
         #run: composer install --no-dev --no-interaction --prefer-dist
 
