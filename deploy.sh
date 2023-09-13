@@ -11,14 +11,14 @@ run_ssh() {
 }
 
 # Enable Maintenance Mode on Server 1
-run_ssh "${{ secrets.SERVER1_HOST }}" "${{ secrets.SERVER1_USERNAME }}" "${{ secrets.SSH_PRIVATE_KEY_SERVER1 }}" 22 "cd /path/to/server1 && php artisan down"
+run_ssh "${{ secrets.SERVER1_HOST }}" "${{ secrets.SERVER1_USERNAME }}" "/home/ubuntu/.ssh/id_rsa" 22 "cd /var/www/html/test-action && php artisan down"
 
 # Deploy Code on Server 2
-run_ssh "${{ secrets.SERVER2_HOST }}" "${{ secrets.SERVER2_USERNAME }}" "${{ secrets.SSH_PRIVATE_KEY_SERVER2 }}" 22 \
+run_ssh "${{ secrets.SERVER2_HOST }}" "${{ secrets.SERVER2_USERNAME }}" "/home/ubuntu/.ssh/id_rsa" 22 \
     "cd /path/to/server2 && git pull origin main && composer install --no-interaction --no-dev --optimize-autoloader && php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache"
 
 # Disable Maintenance Mode on Server 1
-run_ssh "${{ secrets.SERVER1_HOST }}" "${{ secrets.SERVER1_USERNAME }}" "${{ secrets.SSH_PRIVATE_KEY_SERVER1 }}" 22 "cd /path/to/server1 && php artisan up"
+run_ssh "${{ secrets.SERVER1_HOST }}" "${{ secrets.SERVER1_USERNAME }}" "/home/ubuntu/.ssh/id_rsa" 22 "cd /var/www/html/test-action && php artisan up"
 
 # Run Deploy Script on Server 2
-run_ssh "${{ secrets.SERVER2_HOST }}" "${{ secrets.SERVER2_USERNAME }}" "${{ secrets.SSH_PRIVATE_KEY_SERVER2 }}" 22 "cd /path/to/server2 && sh deploy.sh"
+run_ssh "${{ secrets.SERVER2_HOST }}" "${{ secrets.SERVER2_USERNAME }}" "/home/ubuntu/.ssh/id_rsa" 22 "cd /var/www/html/test-action && sh deploy.sh"
