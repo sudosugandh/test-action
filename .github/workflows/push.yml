@@ -11,7 +11,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-  
 
   configure_php:
     runs-on: ubuntu-latest
@@ -26,8 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Composer Dependencies
-       # run: composer install --no-dev --no-interaction --prefer-dist
-       # working-directory: /var/www/html/test-action # Specify the working directory
+        run: composer install --no-dev --no-interaction --prefer-dist
 
   install_sshpass:
     runs-on: ubuntu-latest
@@ -66,4 +64,29 @@ jobs:
           port: 22
           script: |
             cd /var/www/html/test-action
-           
+            # Add debugging info
+            echo "Current PATH: $PATH"
+            # php -v
+            # sh deploy.sh # Execute the deploy.sh script
+        env:
+          SSH_AUTH_SOCK: /dev/null
+
+  disable_maintenance_mode:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disable Maintenance Mode on Server 1 and Run Deploy Script
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER1_HOST }}
+          username: ${{ secrets.SERVER1_USERNAME }}
+          password: ${{ secrets.SERVER1_PASSWORD }}
+          port: 22
+          script: |
+            cd /var/www/html/test-action
+            # Add debugging info
+            echo "Current PATH: $PATH"
+            php -v
+            php artisan up
+            # sh deploy.sh # Execute the deploy.sh script
+        env:
+          SSH_AUTH_SOCK: /dev/null
