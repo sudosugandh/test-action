@@ -53,8 +53,8 @@ jobs:
             cd /var/www/html/test-action
             # Add debugging info
             echo "Current PATH: $PATH"
-            php -v
-            sh deploy.sh # Execute the deploy.sh script
+           # php -v
+          #  sh deploy.sh # Execute the deploy.sh script
         env:
           SSH_AUTH_SOCK: /dev/null
 
