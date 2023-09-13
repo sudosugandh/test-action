@@ -13,20 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Compile CSS and JavaScript
-        run:
-          npm install
-          npm run prod
-
-      - name: Configure PHP 8.1
-        uses: shivammathur/setup-php@master
-        with:
-          php-version: 8.1
-          extensions: mbstring, ctype, fileinfo, openssl, pdo, bcmath, json, tokenizer, xml
-
-      - name: Install Composer Dependencies
-        run: composer install --no-dev --no-interaction --prefer-dist  
-
       - name: Enable Maintenance Mode on Server 1
         uses: appleboy/ssh-action@master
         with:
@@ -36,6 +22,9 @@ jobs:
           port: 22
           script: |
             cd /var/www/html/test-action
+            # Add debugging info
+            echo "Current PATH: $PATH"
+            php -v
             php artisan down
         env:
           SSH_AUTH_SOCK: /dev/null
@@ -49,6 +38,9 @@ jobs:
           port: 22
           script: |
             cd /var/www/html/test-action
+            # Add debugging info
+            echo "Current PATH: $PATH"
+            php -v
             sh deploy.sh # Execute the deploy.sh script
         env:
           SSH_AUTH_SOCK: /dev/null
@@ -62,6 +54,9 @@ jobs:
           port: 22
           script: |
             cd /var/www/html/test-action
+            # Add debugging info
+            echo "Current PATH: $PATH"
+            php -v
             php artisan up
             sh deploy.sh # Execute the deploy.sh script
         env:
