@@ -1,24 +1,20 @@
 #!/bin/bash
 
-# Function to run SSH commands securely
-run_ssh() {
+# Function to run SSH commands securely with password authentication
+run_ssh_with_password() {
     local host="$1"
     local username="$2"
-    local key="$3"
+    local password="$3"
     local port="$4"
     local script="$5"
-    SSH_AUTH_SOCK=/dev/null ssh -i "$key" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "$port" "$username@$host" "$script"
+    sshpass -p "$password" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p "$port" "$username@$host" "$script"
 }
 
 # Enable Maintenance Mode on Server 1
-run_ssh "${{ secrets.SERVER1_HOST }}" "${{ secrets.SERVER1_USERNAME }}" "/home/ubuntu/.ssh/id_rsa" 22 "cd /var/www/html/test-action && php artisan down"
+run_ssh_with_password "${{ secrets.SERVER1_HOST }}" "${{ secrets.SERVER1_USERNAME }}" "${{ secrets.SERVER1_PASSWORD }}" 22 "cd /var/www/html/test-action && php artisan down"
 
 # Deploy Code on Server 2
-run_ssh "${{ secrets.SERVER2_HOST }}" "${{ secrets.SERVER2_USERNAME }}" "/home/ubuntu/.ssh/id_rsa" 22 \
-    "cd /path/to/server2 && git pull origin main && composer install --no-interaction --no-dev --optimize-autoloader && php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache"
+run_ssh_with_password "${{ secrets.SERVER2_HOST }}" "${{ secrets.SERVER2_USERNAME }}" "${{ secrets.SERVER2_PASSWORD }}" 22 "cd /var/www/html/test-action && sh deploy.sh"
 
 # Disable Maintenance Mode on Server 1
-run_ssh "${{ secrets.SERVER1_HOST }}" "${{ secrets.SERVER1_USERNAME }}" "/home/ubuntu/.ssh/id_rsa" 22 "cd /var/www/html/test-action && php artisan up"
-
-# Run Deploy Script on Server 2
-run_ssh "${{ secrets.SERVER2_HOST }}" "${{ secrets.SERVER2_USERNAME }}" "/home/ubuntu/.ssh/id_rsa" 22 "cd /var/www/html/test-action && sh deploy.sh"
+run_ssh_with_password "${{ secrets.SERVER1_HOST }}" "${{ secrets.SERVER1_USERNAME }}" "${{ secrets.SERVER1_PASSWORD }}" 22 "cd /var/www/html/test-action && php artisan up"
