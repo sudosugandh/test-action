@@ -71,6 +71,6 @@ jobs:
             echo "Current PATH: $PATH"
             php -v
             php artisan up
-            sh deploy.sh # Execute the deploy.sh script
+           # sh deploy.sh # Execute the deploy.sh script
         env:
           SSH_AUTH_SOCK: /dev/null
