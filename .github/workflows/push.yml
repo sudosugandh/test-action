@@ -6,37 +6,26 @@ on:
       - main
 
 jobs:
-  checkout_code:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-  configure_php:
-    runs-on: ubuntu-latest
-    steps:
       - name: Configure PHP 8.1
         uses: shivammathur/setup-php@master
         with:
           php-version: 8.1
           extensions: mbstring, ctype, fileinfo, openssl, pdo, bcmath, json, tokenizer, xml
 
-  install_composer_dependencies:
-    runs-on: ubuntu-latest
-    steps:
       - name: Install Composer Dependencies
         run: composer install --no-dev --no-interaction --prefer-dist
 
-  install_sshpass:
-    runs-on: ubuntu-latest
-    steps:
       - name: Install sshpass
         run: sudo apt-get install sshpass  # Install sshpass on the runner
 
-  enable_maintenance_mode:
-    runs-on: ubuntu-latest
-    steps:
       - name: Enable Maintenance Mode on Server 1
+        if: success()
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER1_HOST }}
@@ -52,10 +41,8 @@ jobs:
         env:
           SSH_AUTH_SOCK: /dev/null
 
-  deploy_code_server2:
-    runs-on: ubuntu-latest
-    steps:
       - name: Deploy Code on Server 2
+        if: success()
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER2_HOST }}
@@ -71,10 +58,8 @@ jobs:
         env:
           SSH_AUTH_SOCK: /dev/null
 
-  disable_maintenance_mode:
-    runs-on: ubuntu-latest
-    steps:
       - name: Disable Maintenance Mode on Server 1 and Run Deploy Script
+        if: success()
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER1_HOST }}
