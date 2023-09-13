@@ -25,8 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install Composer Dependencies
-        working-directory: /var/www/html/test-action
-        run: composer install --no-dev --no-interaction --prefer-dist
+        #working-directory: /var/www/html/test-action
+        #run: composer install --no-dev --no-interaction --prefer-dist
 
   install_sshpass:
     runs-on: ubuntu-latest
