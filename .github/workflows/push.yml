@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  deploy_server1:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -25,7 +25,6 @@ jobs:
         run: sudo apt-get install sshpass  # Install sshpass on the runner
 
       - name: Enable Maintenance Mode on Server 1
-        if: success()
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER1_HOST }}
@@ -41,8 +40,16 @@ jobs:
         env:
           SSH_AUTH_SOCK: /dev/null
 
+  deploy_server2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install sshpass
+        run: sudo apt-get install sshpass  # Install sshpass on the runner
+
       - name: Deploy Code on Server 2
-        if: success()
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER2_HOST }}
@@ -54,24 +61,6 @@ jobs:
             # Add debugging info
             echo "Current PATH: $PATH"
             # php -v
-            # sh deploy.sh # Execute the deploy.sh script
-        env:
-          SSH_AUTH_SOCK: /dev/null
-
-      - name: Disable Maintenance Mode on Server 1 and Run Deploy Script
-        if: success()
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER1_HOST }}
-          username: ${{ secrets.SERVER1_USERNAME }}
-          password: ${{ secrets.SERVER1_PASSWORD }}
-          port: 22
-          script: |
-            cd /var/www/html/test-action
-            # Add debugging info
-            echo "Current PATH: $PATH"
-            php -v
-            php artisan up
             # sh deploy.sh # Execute the deploy.sh script
         env:
           SSH_AUTH_SOCK: /dev/null
